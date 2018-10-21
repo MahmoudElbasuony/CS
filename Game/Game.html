@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <title>Baby Race</title>
+    <script>var moveing=true;var sound=false; 
+        var allow_menu=false; var back = new Audio("audio/back.mp3"); 
+        back.addEventListener("ended",function(){this.play();},false)    
+    </script>
+    <script src="scripts/jquery.js" language="javascript">  </script>   
+   <!-- <script src="scripts/drawBlock.js" language="javascript"></script>-->
+    <script src="scripts/Introduction.js" language="javascript">  </script>   
+    <script src="scripts/BabyInit.js" language="javascript"> </script>
+    <script src="scripts/canvasInit&Background.js" language="javascript"> </script>
+    <script src="scripts/inputcontrol.js" language="javascript"></script>
+    <script src="scripts/Ballon.js" language="javascript"></script>
+    <script src="scripts/enymies.js" language="javascript"></script>
+     <script language="javascript"> 
+        var is_chrome = navigator.userAgent.toLowerCase().indexOf('chrome') > -1;
+        if(is_chrome!=true)
+        {
+           $("html").find('script').remove();
+        }
+    </script>
+</head>
+<body style="margin:0px;padding:0px; background-repeat:no-repeat; background-size:100% 100%;">
+    
+    <script language="javascript"> 
+            intro();   
+            var is_chrome = navigator.userAgent.toLowerCase().indexOf('chrome') > -1;
+            if(is_chrome!=true)
+            {
+                document.getElementsByTagName("html")[0].removeChild(document.body);
+                alert("Sorry this Game Can Run on Chrome only due to performance issues!");
+            }
+
+    </script>
+    <canvas id="BackgroundMove"   style=" border:5px solid black; box-sizing:border-box;position:fixed; top:0px; "></canvas>
+    <div id="Queen"   style="position:fixed;width:280px;height:180px;background-size:100% 100%; background-image:url(images/Queen.png)"></div>
+    <canvas id="GameLayer"    style= "border:5px solid black;box-sizing:border-box;position:fixed; top:0px; "></canvas>
+    <canvas id="BabyCanvas"   style = "border:none;border-radius:150px; box-sizing:border-box;position:fixed; top:0px;left:100px; z-index:500;"></canvas>
+    <div id="pro"  style="width:1090px; height:0px;overflow:hidden; border:1px solid black;background-color:rgba(0,0,0,0.5); border-radius:0px 0px 100px 100px;position:relative; top:5px; left :10%;z-index:50000">
+    <canvas  id="Fire_tag" width="30" height="20" style="box-sizing:border-box;position:relative;overflow:hidden; top:8px;left:171px; "></canvas>
+    <canvas id="health_tag" width="30" height="20" style=" box-sizing:border-box;position:relative;overflow:hidden; top:38px;left:135px; "></canvas>
+    <div id="fp"  style="background-image:linear-gradient(to left, #FFFB0B, #2FEB12);text-align:-webkit-center;overflow:hidden; ;width:100px;height:20px ;border-radius:50px;margin-left:200px;margin-top:-15px;border:1px solid blackoverflow:hidden;;"></div>
+    <div id="hp"  style="background-image:linear-gradient(to left, #FF270F, #00050A);text-align:-webkit-center; width:700px;height:20px ;border-radius:50px;margin-left:200px;margin-top:5px;border:1px solid black;"></div>
+    </div>
+   
+    <!--------------------------this is the input ------------------------------------------------>
+    <input id="input"  onkeydown="InputControlD(event)" onkeyup="InputControlU(event)" 
+        style="z-index:500; width:0px; height:0px;position:fixed; left:100px; top :500000000000000px;"   />
+    <!-------------------------------------------------------------------------------------------->
+
+    <script  language="javascript">
+          
+            //************************************  Global Variables   *******************************************************
+            //********************************** initiation of Canvases ******************************************************
+                         var incCam=false;
+                         var change_mid_body=false;
+                         var Graphics = InitCanvas("BackgroundMove",window.innerWidth,window.innerHeight);  //get the context of Graphics 
+                         var BabyCanvas = InitCanvas("BabyCanvas",130,219);      // Baby Canvas
+                         var GameLayer = InitCanvas("GameLayer",window.innerWidth,window.innerHeight);    // GameLayer
+                          $("#Queen").css({"left":(window.innerWidth - 120 + 12500)+"px","top":(Graphics.canvas.height-250)+"px"});
+             //****************************************************************************************************************
+
+     
+            ele1 =   document.getElementById("health_tag");
+            ele2 =   document.getElementById("Fire_tag");
+            con1 = ele1.getContext("2d");
+            con2 = ele2.getContext("2d");
+            var imga = new Image(); // tag annotation
+            imga.src="images/S.png";
+            imga.onload=function()
+            {
+                    con1.drawImage(imga,3259,182,120,80,0,0,30,20);
+                    con2.drawImage(imga,3259,100,120,80,0,0,30,20);
+                   
+            }
+            
+ 
+
+
+              var loseopen=false,winopen=false;
+            /*-------focus the input textbox all the time to able to inputand check fires collision with ballons ------------*/
+           var play = setInterval(function()
+            {
+                
+                //******************** this call make the hidden input that take the key always focus **************************//
+                //                                                                                                              //
+                //                                                                                                              //
+
+                                                $("#input").focus();  
+                //
+                //                                                                                                              //
+                //**************************************************************************************************************//
+
+
+
+ 
+
+                //******************** this call to change the mid body show when be in fire state or not ***********************//
+                //                                                                                                               //
+                //                                                                                                               //
+                         if(fire==true)  // to fire 
+                         {
+                             Baby.midbodyleft= [2940,110,160,120,10,95,70,70];
+                             Baby.midbodyright=[3095,110,160,120,35,93,70,70];
+                         }
+                         else if(fire==false) // not fire 
+                         {
+                             Baby.midbodyleft= [545,0,150,123,20,95,70,70];
+                             Baby.midbodyright=[1310,0,150,120,30,95,70,70];
+                         }
+                         // just check if there are any fire 
+                         if(Fire_Energy>0)
+                         {  
+                             fire=true;
+                         }
+                         else
+                         {
+                             fire=false;
+                         }
+                //                                                                                                              //
+                //                                                                                                              //
+                //**************************************************************************************************************//
+                
+                
+                
+                
+                //**************************** check fire and ballon algorithm *************************************************//
+                //      this to use little timers only reason ^_^ and also the the permenant timer at each one mmiliseconds     //
+                //                                           balls means fires                                                  //
+                //      if there are fires shown opposite you on the screen the algorithm will be checked by passing true       //
+                                                      if(balls.length>0) 
+                                                 checkPositonFire_Balon(true); 
+                //
+                //                                                                                                              //
+                //**************************************************************************************************************//
+
+                
+                $("#fp").text(Fire_Energy+"");
+                $("#hp").text(Baby_Energy+"");
+                        if(Baby_Energy<=0)
+                        {
+                            if(loseopen==false)
+                          
+                            lose();
+                                
+                        }
+
+                        if((parseFloat($("#BabyCanvas").css("left"))+parseFloat($("#BabyCanvas").css("width")))>=
+                           parseFloat($("#Queen").css("left"))
+                           &&(parseFloat($("#BabyCanvas").css("left"))+parseFloat($("#BabyCanvas").css("width"))-300)<=
+                           parseFloat($("#Queen").css("left"))&&(Baby_Energy>40))
+                        {
+                          if(winopen==false)
+                            win();
+                        }
+      
+                 
+                },1);
+     
+
+     
+     
+                
+
+
+                     setTimeout(function(){allow_menu=true;},100);
+
+
+                //****************************  this call decide where the monster to stop *************************************//
+                //                                                                                                              //
+                //                                                                                                              //
+                //                                                                                                              //
+                                                move_monster_to_random_position();  
+                //
+                //                                                                                                              //
+                //**************************************************************************************************************//
+
+                //****************************************** create and draw Baby  *********************************************//
+                //                                                                                                              //
+                //                                                                                                              //
+                //                                                                                                              //
+                      $("#BabyCanvas").css({"top":Graphics.canvas.height-255});  // set the positon of y of baby
+
+                                                          Baby.DrawBaby(BabyCanvas);
+                //                                                                                                              //
+                //                                                                                                              //
+                //**************************************************************************************************************//
+
+                //**************************** this to make the background move with baby **************************************//
+                //                                                                                                              //
+                //                                                                                                              //
+                //                                                                                                              //
+                                                        DrawBackground(Graphics);   
+
+                //                                                                                                              //
+                //                                                                                                              //
+                //**************************************************************************************************************//
+
+
+                //**************************** this to change the position of baby when press keys  ****************************//
+                //                                                                                                              //
+                //                                                                                                              //
+                //                                                                                                              //
+                                                       Move();
+                //
+                //                                                                                                              //
+                //**************************************************************************************************************//
+
+
+
+                //**************************** this to check the food and baby the positions ***********************************//
+                //                                                                                                              //
+                //                                                                                                              //
+                //                                                                                                              //
+                                                          check_food_position();
+                //
+                //                                                                                                              //
+                //**************************************************************************************************************//
+ 
+ </script>
+    <!-- monster creation -->
+    <script src="scripts/Monster_Creation.js"></script>
+</body>
+</html>
